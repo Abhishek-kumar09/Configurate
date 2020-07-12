@@ -99,7 +99,6 @@ class ConfigurateDevPlugin : Plugin<Project> {
                         version.java.srcDirs(project.projectDir.resolve("src/${set.name}/$versionId"))
                         // Depend on main source set
                         project.dependencies.add(version.implementationConfigurationName, set.output.classesDirs)?.apply {
-                            println(this::class)
                             // this.builtBy(tasks.named(set.compileJavaTaskName))
                         }
                         // Set compatibility
