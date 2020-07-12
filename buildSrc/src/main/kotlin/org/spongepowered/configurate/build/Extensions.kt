@@ -46,7 +46,7 @@ fun Javadoc.applyCommonAttributes() {
                 "https://checkerframework.org/api/",
                 "https://docs.oracle.com/javase/8/docs/api"
         )
-        options.source = targetVersion.toString()
+        options.source = BASE_TARGET.toString()
         if (version.isJava9Compatible) {
             options.addBooleanOption("html5", true)
         }
