@@ -23,17 +23,27 @@ import org.gradle.api.tasks.testing.Test
 import org.gradle.jvm.tasks.Jar
 
 internal val BASE_TARGET = JavaVersion.VERSION_1_8
-private const val OPTION_PREFIX = "javaHome."
+private const val ENVIRONMENT_VAR_PREFIX = "JAVA_HOME_"
+private const val GRADLE_PROPERTY_PREFIX = "javaHome."
 private val MULTIRELEASE_TARGETS = listOf(JavaVersion.VERSION_1_9, JavaVersion.VERSION_1_10)
 
 class ConfigurateDevPlugin : Plugin<Project> {
 
     private fun availableJavaToolchains(project: Project): SortedMap<JavaVersion, File> {
-        return project.properties
+        // GitHub actions sets variables in the format JAVA_HOME_<version>_<arch>
+        // strip the <arch>, and extract the version
+        val environmentProperties = System.getenv()
                 .asSequence()
-                .filter { (k, _) -> k.startsWith(OPTION_PREFIX) }
-                .map { (optName, path) -> JavaVersion.toVersion(optName.substring(OPTION_PREFIX.length)) to project.file(path!!) }
-                .toMap(TreeMap())
+                .filter { (k, _) -> k.startsWith(ENVIRONMENT_VAR_PREFIX) }
+                .map { (optName, path) -> JavaVersion.toVersion(optName.substring(ENVIRONMENT_VAR_PREFIX.length).substringBefore('_')) to project.file(path!!) }
+
+        // javaHome.<version>
+        val gradleProperties = project.properties
+                .asSequence()
+                .filter { (k, _) -> k.startsWith(GRADLE_PROPERTY_PREFIX) }
+                .map { (optName, path) -> JavaVersion.toVersion(optName.substring(GRADLE_PROPERTY_PREFIX.length)) to project.file(path!!) }
+
+        return (environmentProperties + gradleProperties).toMap(TreeMap())
     }
 
     override fun apply(target: Project) {

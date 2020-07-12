@@ -38,11 +38,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Build with Gradle
-        run: |
-            export ORG_GRADLE_PROJECT_javaHomes.8=$JAVA_HOME_8_x64
-            export ORG_GRADLE_PROJECT_javaHomes.9=$JAVA_HOME_9_x64
-            export ORG_GRADLE_PROJECT_javaHomes.10=$JAVA_HOME_10_x64
-            ./gradlew build
+        run: ./gradlew build
       - name: Archive test results
         uses: actions/upload-artifact@v2-preview
         with:
