@@ -25,7 +25,9 @@ import org.spongepowered.configurate.ConfigurationNode;
 import org.spongepowered.configurate.loader.ConfigurationLoader;
 import org.spongepowered.configurate.objectmapping.ObjectMappingException;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,17 +41,23 @@ public class YamlConfigurationLoaderTest {
     @Test
     public void testSimpleLoading() throws IOException, ObjectMappingException {
         final URL url = getClass().getResource("/example.yml");
+        final StringWriter out = new StringWriter();
         final ConfigurationLoader<BasicConfigurationNode> loader = YamlConfigurationLoader.builder()
-                .setUrl(url).build();
+                .setUrl(url)
+                .setSink(() -> new BufferedWriter(out)).build();
         final ConfigurationNode node = loader.load();
         assertEquals("unicorn", node.getNode("test", "op-level").getValue());
         assertEquals("dragon", node.getNode("other", "op-level").getValue());
         assertEquals("dog park", node.getNode("other", "location").getValue());
 
 
+        loader.save(node);
+        System.out.println(out.toString());
+
         final List<Map<String, List<String>>> fooList = new ArrayList<>(node.getNode("foo")
             .getList(new TypeToken<Map<String, List<String>>>() {}));
         assertEquals(0, fooList.get(0).get("bar").size());
+
     }
 
     @Test
